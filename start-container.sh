@@ -18,6 +18,15 @@ run_container() {
     $IMAGE_NAME
 }
 
+enter_container() {
+  if [ "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
+    docker start $CONTAINER_NAME >/dev/null 2>&1
+    docker exec -it $CONTAINER_NAME bash
+  else
+    run_container
+  fi
+}
+
 case "$1" in
 
   build)
@@ -31,17 +40,8 @@ case "$1" in
     run_container
     ;;
 
-  start)
-    if [ "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
-      docker start $CONTAINER_NAME >/dev/null 2>&1
-      docker exec -it $CONTAINER_NAME bash
-    else
-      run_container
-    fi
-    ;;
-
-  exec)
-    docker exec -it $CONTAINER_NAME bash
+  start|exec)
+    enter_container
     ;;
 
   stop)
